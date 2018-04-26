@@ -125,18 +125,26 @@ module.exports = class LiterallyCanvas
     @containerEl = null
     @isBound = false
 
-  trigger: (name, data) ->
-    @canvas.dispatchEvent(new CustomEvent(name, detail: data))
+  trigger: (name, data, layer) ->
+    if layer is 'second'
+      @secondCanvas.dispatchEvent(new CustomEvent(name, detail: data))
+    else
+      @canvas.dispatchEvent(new CustomEvent(name, detail: data))
     # dispatchEvent has a boolean value that doesn't mean anything to us, so
     # don't let CoffeeScript send it back
     null
 
-  on: (name, fn) ->
-    wrapper = (e) -> fn e.detail
-    @canvas.addEventListener(name, wrapper)
-    =>
-      @canvas.removeEventListener(name, wrapper)
-
+  on: (name, fn, layer) ->
+    if layer is 'second'
+      wrapper = (e) -> fn e.detail
+      @secondCanvas.addEventListener(name, wrapper)
+      =>
+        @secondCanvas.removeEventListener(name, wrapper)
+    else
+      wrapper = (e) -> fn e.detail
+      @canvas.addEventListener(name, wrapper)
+      =>
+        @canvas.removeEventListener(name, wrapper)
   # actual ratio of drawing-space pixels to perceived pixels, accounting for
   # both zoom and displayPixelWidth. use this when converting between
   # drawing-space and screen-space.
@@ -172,10 +180,10 @@ module.exports = class LiterallyCanvas
     if @tool.usesSimpleAPI
       @tool.begin p.x, p.y, this
       @isDragging = true
-      @trigger("drawStart", {tool: @tool})
+      @trigger("drawStart", {tool: @tool}, @currentLayer)
     else
       @isDragging = true
-      @trigger("lc-pointerdown", {tool: @tool, x: p.x, y: p.y, rawX: x, rawY: y})
+      @trigger("lc-pointerdown", {tool: @tool, x: p.x, y: p.y, rawX: x, rawY: y}, @currentLayer)
 
   pointerMove: (x, y) ->
     util.requestAnimationFrame () =>
@@ -183,12 +191,12 @@ module.exports = class LiterallyCanvas
       if @tool?.usesSimpleAPI
         if @isDragging
           @tool.continue p.x, p.y, this
-          @trigger("drawContinue", {tool: @tool})
+          @trigger("drawContinue", {tool: @tool}, @currentLayer)
       else
         if @isDragging
-          @trigger("lc-pointerdrag", {tool: @tool, x: p.x, y: p.y, rawX: x, rawY: y})
+          @trigger("lc-pointerdrag", {tool: @tool, x: p.x, y: p.y, rawX: x, rawY: y}, @currentLayer)
         else
-          @trigger("lc-pointermove", {tool: @tool, x: p.x, y: p.y, rawX: x, rawY: y})
+          @trigger("lc-pointermove", {tool: @tool, x: p.x, y: p.y, rawX: x, rawY: y}, @currentLayer)
 
   pointerUp: (x, y) ->
     p = @clientCoordsToDrawingCoords(x, y)
@@ -196,10 +204,10 @@ module.exports = class LiterallyCanvas
       if @isDragging
         @tool.end p.x, p.y, this
         @isDragging = false
-        @trigger("drawEnd", {tool: @tool})
+        @trigger("drawEnd", {tool: @tool}, @currentLayer)
     else
       @isDragging = false
-      @trigger("lc-pointerup", {tool: @tool, x: p.x, y: p.y, rawX: x, rawY: y})
+      @trigger("lc-pointerup", {tool: @tool, x: p.x, y: p.y, rawX: x, rawY: y}, @currentLayer)
 
   setColor: (name, color) ->
     @colors[name] = color
@@ -209,23 +217,24 @@ module.exports = class LiterallyCanvas
         @containerEl.style.backgroundColor = @colors.background
         @repaintLayer('background')
       when 'primary'
-        @repaintLayer('main')
+        @repaintLayer(@currentLayer)
       when 'secondary'
-        @repaintLayer('main')
+        @repaintLayer(@currentLayer)
     @trigger "#{name}ColorChange", @colors[name]
     @trigger "drawingChange" if name == 'background'
 
   getColor: (name) -> @colors[name]
 
   saveShape: (shape, triggerShapeSaveEvent=true, previousShapeId=null) ->
+    currentShapes = if @currentLayer is 'main' then @shapes else @secondShapes
     unless previousShapeId
-      previousShapeId = if @shapes.length \
-        then @shapes[@shapes.length-1].id \
+      previousShapeId = if currentShapes.length \
+        then currentShapes[currentShapes.length-1].id \
         else null
     @execute(new actions.AddShapeAction(this, shape, previousShapeId))
     if triggerShapeSaveEvent
-      @trigger('shapeSave', {shape, previousShapeId})
-    @trigger('drawingChange')
+      @trigger('shapeSave', {shape, previousShapeId}, @currentLayer)
+    @trigger('drawingChange', {}, @currentLayer)
 
   pan: (x, y) ->
     # Subtract because we are moving the viewport
@@ -290,6 +299,12 @@ module.exports = class LiterallyCanvas
   # otherwise the back buffer is simply copied to the screen as is.
   repaintLayer: (repaintLayerKey, dirty=(repaintLayerKey == 'main' or 'second')) ->
     return unless @isBound
+    currentCanvas = if repaintLayerKey is 'main' then @canvas else @secondCanvas
+    currentContext = if repaintLayerKey is 'main' then @ctx else @secondCtx
+    currentBuffer = if repaintLayerKey is 'main' then @buffer else @secondBuffer
+    currentBufferContext = if repaintLayerKey is 'main' then @bufferCtx else @secondBufferCtx
+    currentShapes = if repaintLayerKey is 'main' then @shapes else @secondShapes
+
     switch repaintLayerKey
       when 'background'
         @backgroundCtx.clearRect(
@@ -301,28 +316,28 @@ module.exports = class LiterallyCanvas
       when 'main', 'second'
         retryCallback = => @repaintLayer(repaintLayerKey, true)
         if dirty
-          @buffer.width = @canvas.width
-          @buffer.height = @canvas.height
-          @bufferCtx.clearRect(0, 0, @buffer.width, @buffer.height)
-          @draw(@shapes, @bufferCtx, retryCallback)
-        @ctx.clearRect(0, 0, @canvas.width, @canvas.height)
-        if @canvas.width > 0 and @canvas.height > 0
-          @ctx.fillStyle = '#ccc'
-          @ctx.fillRect(0, 0, @canvas.width, @canvas.height)
+          currentBuffer.width = currentCanvas.width
+          currentBuffer.height = currentCanvas.height
+          currentBufferContext.clearRect(0, 0, currentBuffer.width, currentBuffer.height)
+          @draw(currentShapes, currentBufferContext, retryCallback)
+        currentContext.clearRect(0, 0, currentCanvas.width, currentCanvas.height)
+        if currentCanvas.width > 0 and currentCanvas.height > 0
+          currentContext.fillStyle = '#ccc'
+          currentContext.fillRect(0, 0, currentCanvas.width, currentCanvas.height)
           @clipped (=>
-            @ctx.clearRect(0, 0, @canvas.width, @canvas.height)
-            @ctx.drawImage @buffer, 0, 0
-          ), @ctx
+            currentContext.clearRect(0, 0, currentCanvas.width, currentCanvas.height)
+            currentContext.drawImage currentBuffer, 0, 0
+          ), currentContext
 
           @clipped (=>
             @transformed (=>
               for shape in @_shapesInProgress
                 renderShapeToContext(
-                  @ctx, shape, {@bufferCtx, shouldOnlyDrawLatest: true})
-            ), @ctx, @bufferCtx
-          ), @ctx, @bufferCtx
+                  currentContext, shape, {currentBufferContext, shouldOnlyDrawLatest: true})
+            ), currentContext, currentBufferContext
+          ), currentContext, currentBufferContext
 
-    @trigger('repaint', {layerKey: repaintLayerKey})
+    @trigger('repaint', {layerKey: repaintLayerKey}, repaintLayerKey)
 
   _renderWatermark: (ctx, worryAboutRetina=true, retryCallback) ->
     unless @watermarkImage.width
@@ -343,13 +358,15 @@ module.exports = class LiterallyCanvas
   # without doing a full repaint.
   # The context is restored to its original state before returning.
   drawShapeInProgress: (shape) ->
-    @repaintLayer('main', false)
+    currentContext = if @currentLayer is 'second' then @secondCtx else @ctx
+    currentBufferContext = if @currentLayer is 'second' then @secondBufferCtx else @bufferCtx
+    @repaintLayer(@currentLayer, false)
     @clipped (=>
       @transformed (=>
         renderShapeToContext(
-          @ctx, shape, {@bufferCtx, shouldOnlyDrawLatest: true})
-      ), @ctx, @bufferCtx
-    ), @ctx, @bufferCtx
+          currentContext, shape, {bufferCtx: currentBufferContext, shouldOnlyDrawLatest: true})
+      ), currentContext, currentBufferContext
+    ), currentContext, currentBufferContext
 
   # Draws the given shapes translated and scaled to the given context.
   # The context is restored to its original state before returning.
@@ -399,7 +416,8 @@ module.exports = class LiterallyCanvas
       ctx.restore()
 
   clear: (triggerClearEvent=true) ->
-    oldShapes = @shapes
+    currentShapes = if @currentLayer is 'main' then @shapes else @secondShapes
+    oldShapes = currentShapes
     newShapes = []
     @setShapesInProgress []
     @execute(new actions.ClearAction(this, oldShapes, newShapes))
@@ -434,8 +452,9 @@ module.exports = class LiterallyCanvas
   canRedo: -> !!@redoStack.length
 
   getPixel: (x, y) ->
+    currentContext = if repaintLayerKey is 'main' then @ctx else @secondCtx
     p = @drawingCoordsToClientCoords x, y
-    pixel = @ctx.getImageData(p.x, p.y, 1, 1).data
+    pixel = currentContext.getImageData(p.x, p.y, 1, 1).data
     if pixel[3]
       "rgb(#{pixel[0]}, #{pixel[1]}, #{pixel[2]})"
     else
@@ -450,8 +469,9 @@ module.exports = class LiterallyCanvas
   getDefaultImageRect: (
       explicitSize={width: 0, height: 0},
       margin={top: 0, right: 0, bottom: 0, left: 0}) ->
+    currentContext = if repaintLayerKey is 'main' then @ctx else @secondCtx
     return util.getDefaultImageRect(
-      (s.getBoundingRect(@ctx) for s in @shapes.concat(@backgroundShapes)),
+      (s.getBoundingRect(currentContext) for s in @shapes.concat(@backgroundShapes).concat(@secondShapes)),
       explicitSize,
       margin )
 

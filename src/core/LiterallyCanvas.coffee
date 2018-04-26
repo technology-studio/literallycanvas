@@ -421,11 +421,16 @@ module.exports = class LiterallyCanvas
     newShapes = []
     @setShapesInProgress []
     @execute(new actions.ClearAction(this, oldShapes, newShapes))
-    @repaintLayer('main')
-    @repaintLayer('second')
+    @repaintLayer(@currentLayer)
     if triggerClearEvent
       @trigger('clear', null)
     @trigger('drawingChange', {})
+
+  clearCurrentLayer: () ->
+    if @currentLayer is 'main'
+      @shapes = []
+    else
+      @secondShapes = []
 
   execute: (action) ->
     @undoStack.push(action)

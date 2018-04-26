@@ -31,6 +31,17 @@ class MoveAction
     }
     @lc.repaintLayer('main')
 
+class ChangeColorAction
+
+  constructor: (@lc, @selectedShape, @previousColor, @newColor) ->
+
+  do: ->
+    @selectedShape.setFillColor(@newColor)
+    @lc.repaintLayer('main')
+
+  undo: ->
+    @selectedShape.setFillColor(@previousColor)
+    @lc.repaintLayer('main')
 
 class AddShapeAction
 
@@ -70,4 +81,4 @@ class AddShapeAction
     @lc.repaintLayer('main')
 
 
-module.exports = {ClearAction, MoveAction, AddShapeAction}
+module.exports = {ClearAction, MoveAction, AddShapeAction, ChangeColorAction}

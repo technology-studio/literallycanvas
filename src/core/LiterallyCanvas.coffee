@@ -43,16 +43,29 @@ module.exports = class LiterallyCanvas
     @canvas = document.createElement('canvas')
     @canvas.style['background-color'] = 'transparent'
 
+    @secondCanvas = document.createElement('canvas')
+    @secondCanvas.style['background-color'] = 'transparent'
+
     @buffer = document.createElement('canvas')
     @buffer.style['background-color'] = 'transparent'
+
+    @secondBuffer = document.createElement('canvas')
+    @secondBuffer.style['background-color'] = 'transparent'
+
     @ctx = @canvas.getContext('2d')
+    @secondCtx = @secondCanvas.getContext('2d')
+
     @bufferCtx = @buffer.getContext('2d')
+    @secondBufferCtx = @secondBuffer.getContext('2d')
+
+    @currentLayer = 'main' # TODO: change dynamically
 
     @backingScale = util.getBackingScale(@ctx)
 
     @backgroundShapes = opts.backgroundShapes || []
     @_shapesInProgress = []
     @shapes = []
+    @secondShapes = []
     @undoStack = []
     @redoStack = []
 

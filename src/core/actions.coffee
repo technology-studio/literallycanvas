@@ -2,15 +2,20 @@
 # double-redo
 class ClearAction
 
-  constructor: (@lc, @oldShapes, @newShapes) ->
+  constructor: (
+  @lc,
+  @oldShapes,
+  @newShapes,
+  @shapes = if @lc.currentLayer is 'main' then @lc.shapes else @lc.secondShapes
+  ) ->
 
   do: ->
-    @lc.shapes = @newShapes
-    @lc.repaintLayer('main')
+    @shapes = @newShapes
+    @lc.repaintLayer(@lc.currentLayer)
 
   undo: ->
-    @lc.shapes = @oldShapes
-    @lc.repaintLayer('main')
+    @shapes = @oldShapes
+    @lc.repaintLayer(@lc.currentLayer)
 
 
 class MoveAction
@@ -22,31 +27,36 @@ class MoveAction
       x: @newPosition.x,
       y: @newPosition.y
     }
-    @lc.repaintLayer('main')
+    @lc.repaintLayer(@lc.currentLayer)
 
   undo: ->
     @selectedShape.setUpperLeft {
       x: @previousPosition.x,
       y: @previousPosition.y
     }
-    @lc.repaintLayer('main')
+    @lc.repaintLayer(@lc.currentLayer)
 
 
 class AddShapeAction
 
-  constructor: (@lc, @shape, @previousShapeId=null) ->
+  constructor: (
+    @lc,
+    @shape,
+    @previousShapeId=null,
+    @shapes = if @lc.currentLayer is 'main' then @lc.shapes else @lc.secondShapes
+  ) ->
 
   do: ->
     # common case: just add it to the end
-    if (not @lc.shapes.length or
-        @lc.shapes[@lc.shapes.length-1].id == @previousShapeId or
+    if (not @shapes.length or
+        @shapes[@shapes.length-1].id == @previousShapeId or
         @previousShapeId == null)
-      @lc.shapes.push(@shape)
+      @shapes.push(@shape)
     # uncommon case: insert it somewhere
     else
       newShapes = []
       found = false
-      for shape in @lc.shapes
+      for shape in @shapes
         newShapes.push(shape)
         if shape.id == @previousShapeId
           newShapes.push(@shape)
@@ -54,20 +64,20 @@ class AddShapeAction
       unless found
         # given ID doesn't exist, just shove it on top
         newShapes.push(@shape)
-      @lc.shapes = newShapes
-    @lc.repaintLayer('main')
+      @shapes = newShapes
+    @lc.repaintLayer(@lc.currentLayer)
 
   undo: ->
     # common case: it's the most recent shape
-    if @lc.shapes[@lc.shapes.length-1].id == @shape.id
-      @lc.shapes.pop()
+    if @shapes[@shapes.length-1].id == @shape.id
+      @shapes.pop()
     # uncommon case: it's in the array somewhere
     else
       newShapes = []
-      for shape in @lc.shapes
+      for shape in @shapes
         newShapes.push(shape) if shape.id != @shape.id
       lc.shapes = newShapes
-    @lc.repaintLayer('main')
+    @lc.repaintLayer(@lc.currentLayer)
 
 
 module.exports = {ClearAction, MoveAction, AddShapeAction}

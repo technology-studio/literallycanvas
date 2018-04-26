@@ -99,6 +99,7 @@ module.exports = class LiterallyCanvas
     @_unsubscribeEvents = bindEvents(this, @containerEl, @opts.keyboardShortcuts)
     @containerEl.style['background-color'] = @colors.background
     @containerEl.appendChild(@backgroundCanvas)
+    @containerEl.appendChild(@secondCanvas)
     @containerEl.appendChild(@canvas)
 
     @isBound = true
@@ -108,7 +109,7 @@ module.exports = class LiterallyCanvas
         @repaintAllLayers()
 
     @respondToSizeChange = util.matchElementSize(
-      @containerEl, [@backgroundCanvas, @canvas], @backingScale, repaintAll)
+      @containerEl, [@backgroundCanvas, @canvas, @secondCanvas], @backingScale, repaintAll)
 
     if @watermarkImage
       @watermarkImage.onload = => @repaintLayer('background')
@@ -280,14 +281,14 @@ module.exports = class LiterallyCanvas
     @repaintLayer('background') if newImage.width
 
   repaintAllLayers: ->
-    for key in ['background', 'main']
+    for key in ['background', 'main', 'second']
       @repaintLayer(key)
     null
 
   # Repaints the canvas.
   # If dirty is true then all saved shapes are completely redrawn,
   # otherwise the back buffer is simply copied to the screen as is.
-  repaintLayer: (repaintLayerKey, dirty=(repaintLayerKey == 'main')) ->
+  repaintLayer: (repaintLayerKey, dirty=(repaintLayerKey == 'main' or 'second')) ->
     return unless @isBound
     switch repaintLayerKey
       when 'background'
@@ -297,8 +298,8 @@ module.exports = class LiterallyCanvas
         if @watermarkImage
           @_renderWatermark(@backgroundCtx, true, retryCallback)
         @draw(@backgroundShapes, @backgroundCtx, retryCallback)
-      when 'main'
-        retryCallback = => @repaintLayer('main', true)
+      when 'main', 'second'
+        retryCallback = => @repaintLayer(repaintLayerKey, true)
         if dirty
           @buffer.width = @canvas.width
           @buffer.height = @canvas.height
@@ -403,6 +404,7 @@ module.exports = class LiterallyCanvas
     @setShapesInProgress []
     @execute(new actions.ClearAction(this, oldShapes, newShapes))
     @repaintLayer('main')
+    @repaintLayer('second')
     if triggerClearEvent
       @trigger('clear', null)
     @trigger('drawingChange', {})
@@ -441,7 +443,7 @@ module.exports = class LiterallyCanvas
 
   getContentBounds: ->
     util.getBoundingRect(
-      (@shapes.concat(@backgroundShapes)).map((s) -> s.getBoundingRect()),
+      (@shapes.concat(@backgroundShapes).concat(@secondShapes)).map((s) -> s.getBoundingRect()),
       if @width == INFINITE then 0 else @width,
       if @height == INFINITE then 0 else @height)
 
@@ -467,18 +469,20 @@ module.exports = class LiterallyCanvas
 
   canvasForExport: ->
     @repaintAllLayers()
-    util.combineCanvases(@backgroundCanvas, @canvas)
+    util.combineCanvases(@backgroundCanvas, @canvas, @secondCanvas)
 
   canvasWithBackground: (backgroundImageOrCanvas) ->
     util.combineCanvases(backgroundImageOrCanvas, @canvasForExport())
 
   getSnapshot: (keys=null) ->
-    keys ?= ['shapes', 'imageSize', 'colors', 'position', 'scale', 'backgroundShapes']
+    keys ?= ['shapes', 'secondShapes', 'imageSize', 'colors', 'position', 'scale', 'backgroundShapes']
     snapshot = {}
     for k in ['colors', 'position', 'scale']
       snapshot[k] = this[k] if k in keys
     if 'shapes' in keys
       snapshot.shapes = (shapeToJSON(shape) for shape in @shapes)
+    if 'secondShapes' in keys
+      snapshot.secondShapes = (shapeToJSON(shape) for shape in @secondShapes)
     if 'backgroundShapes' in keys
       snapshot.backgroundShapes = (shapeToJSON(shape) for shape in @backgroundShapes)
     if 'imageSize' in keys
@@ -501,6 +505,13 @@ module.exports = class LiterallyCanvas
     if snapshot.shapes
       @shapes = []
       for shapeRepr in snapshot.shapes
+        shape = JSONToShape(shapeRepr)
+        @execute(new actions.AddShapeAction(this, shape)) if shape
+
+    if snapshot.secondShapes
+      console.log snapshot.secondShapes
+      @secondShapes = []
+      for shapeRepr in snapshot.secondShapes
         shape = JSONToShape(shapeRepr)
         @execute(new actions.AddShapeAction(this, shape)) if shape
 

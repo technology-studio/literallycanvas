@@ -41,7 +41,7 @@ module.exports = class LiterallyCanvas
     @backgroundCtx = @backgroundCanvas.getContext('2d')
 
     @canvas = document.createElement('canvas')
-    @canvas.style['background-color'] = 'transparent'
+    @canvas.style['background-color'] = 'rgba(107, 107, 107, 0.25)' # TODO: change to transparent
 
     @secondCanvas = document.createElement('canvas')
     @secondCanvas.style['background-color'] = 'transparent'

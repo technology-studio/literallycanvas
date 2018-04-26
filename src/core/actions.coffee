@@ -2,15 +2,12 @@
 # double-redo
 class ClearAction
 
-  constructor: (
-  @lc,
-  @oldShapes,
-  @newShapes,
-  @shapes = if @lc.currentLayer is 'main' then @lc.shapes else @lc.secondShapes
-  ) ->
+  constructor: (@lc, @oldShapes, @newShapes) ->
 
   do: ->
-    @shapes = @newShapes
+    console.log @lc.shapes
+    @lc.clearCurrentLayer()
+    console.log @lc.shapes
     @lc.repaintLayer(@lc.currentLayer)
 
   undo: ->

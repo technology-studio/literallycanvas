@@ -262,7 +262,7 @@ module.exports = class LiterallyCanvas
     @position = {x, y}
     @keepPanInImageBounds()
     @repaintAllLayers()
-    @trigger('pan', {x: @position.x, y: @position.y})
+    @trigger('pan', {x: @position.x, y: @position.y}, @currentLayer)
 
   zoom: (factor) ->
     newScale = @scale + factor
@@ -426,6 +426,12 @@ module.exports = class LiterallyCanvas
       @trigger('clear', null)
     @trigger('drawingChange', {})
 
+  setCurrentLayerShapes: (value) ->
+    if @currentLayer is 'main'
+      @shapes = value
+    else
+      @secondShapes = value
+
   clearCurrentLayer: () ->
     if @currentLayer is 'main'
       @shapes = []
@@ -442,22 +448,22 @@ module.exports = class LiterallyCanvas
     action = @undoStack.pop()
     action.undo()
     @redoStack.push(action)
-    @trigger('undo', {action})
-    @trigger('drawingChange', {})
+    @trigger('undo', {action}, @currentLayer)
+    @trigger('drawingChange', {}, @currentLayer)
 
   redo: ->
     return unless @redoStack.length
     action = @redoStack.pop()
     @undoStack.push(action)
     action.do()
-    @trigger('redo', {action})
-    @trigger('drawingChange', {})
+    @trigger('redo', {action}, @currentLayer)
+    @trigger('drawingChange', {}, @currentLayer)
 
   canUndo: -> !!@undoStack.length
   canRedo: -> !!@redoStack.length
 
   getPixel: (x, y) ->
-    currentContext = if @repaintLayerKey is 'main' then @ctx else @secondCtx
+    currentContext = if @currentLayer is 'main' then @ctx else @secondCtx
     p = @drawingCoordsToClientCoords x, y
     pixel = currentContext.getImageData(p.x, p.y, 1, 1).data
     if pixel[3]
@@ -474,7 +480,7 @@ module.exports = class LiterallyCanvas
   getDefaultImageRect: (
       explicitSize={width: 0, height: 0},
       margin={top: 0, right: 0, bottom: 0, left: 0}) ->
-    currentContext = if @repaintLayerKey is 'main' then @ctx else @secondCtx
+    currentContext = if @currentLayer is 'main' then @ctx else @secondCtx
     return util.getDefaultImageRect(
       (s.getBoundingRect(currentContext) for s in @shapes.concat(@backgroundShapes).concat(@secondShapes)),
       explicitSize,
@@ -551,8 +557,8 @@ module.exports = class LiterallyCanvas
     @scale = snapshot.scale if snapshot.scale
 
     @repaintAllLayers()
-    @trigger('snapshotLoad')
-    @trigger('drawingChange', {})
+    @trigger('snapshotLoad', undefined, @currentLayer)
+    @trigger('drawingChange', {}, @currentLayer)
 
   loadSnapshotJSON: (str) ->
     console.warn("lc.loadSnapshotJSON() is deprecated. use lc.loadSnapshot(JSON.parse(snapshot)) instead.")

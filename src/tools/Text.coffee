@@ -37,26 +37,29 @@ module.exports = class Text extends Tool
 
     updateInputEl = => @_updateInputEl(lc)
 
-    unsubscribeFuncs.push lc.on 'drawingChange', switchAway
-    unsubscribeFuncs.push lc.on 'zoom', updateInputEl
-    unsubscribeFuncs.push lc.on 'imageSizeChange', updateInputEl
-    unsubscribeFuncs.push lc.on 'snapshotLoad', =>
+    unsubscribeFuncs.push lc.on 'drawingChange', switchAway, lc.currentLayer
+    unsubscribeFuncs.push lc.on 'zoom', updateInputEl, lc.currentLayer
+    unsubscribeFuncs.push lc.on 'imageSizeChange', updateInputEl, lc.currentLayer
+    unsubscribeFuncs.push lc.on 'snapshotLoad', (->
       @_clearCurrentShape(lc)
-      lc.repaintLayer('main')
+      lc.repaintLayer('main')),
+      lc.currentLayer
 
-    unsubscribeFuncs.push lc.on 'primaryColorChange', (newColor) =>
+    unsubscribeFuncs.push lc.on 'primaryColorChange', ((newColor) ->
       return unless @currentShape
       @currentShape.color = newColor
       @_updateInputEl(lc)
-      lc.repaintLayer('main')
+      lc.repaintLayer('main')),
+      lc.currentLayer
 
-    unsubscribeFuncs.push lc.on 'setFont', (font) =>
+    unsubscribeFuncs.push lc.on 'setFont', ((font) ->
       return unless @currentShape
       @font = font
       @currentShape.setFont(font)
       @_setShapesInProgress(lc)
       @_updateInputEl(lc)
-      lc.repaintLayer('main')
+      lc.repaintLayer('main')),
+      lc.currentLayer
 
   willBecomeInactive: (lc) ->
     if @currentShape

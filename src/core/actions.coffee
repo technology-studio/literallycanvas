@@ -11,7 +11,7 @@ class ClearAction
     @lc.repaintLayer(@lc.currentLayer)
 
   undo: ->
-    @shapes = @oldShapes
+    @lc.setCurrentLayerShapes(@oldShapes)
     @lc.repaintLayer(@lc.currentLayer)
 
 
@@ -60,6 +60,7 @@ class AddShapeAction
         @shapes[@shapes.length-1].id == @previousShapeId or
         @previousShapeId == null)
       @shapes.push(@shape)
+      @lc.setCurrentLayerShapes(@shapes)
     # uncommon case: insert it somewhere
     else
       newShapes = []
@@ -84,7 +85,7 @@ class AddShapeAction
       newShapes = []
       for shape in @shapes
         newShapes.push(shape) if shape.id != @shape.id
-      lc.shapes = newShapes
+      @lc.setCurrentLayerShapes(newShapes)
     @lc.repaintLayer(@lc.currentLayer)
 
 

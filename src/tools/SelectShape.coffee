@@ -78,9 +78,9 @@ module.exports = class SelectShape extends Tool
         lc.repaintLayer('main')
         @_drawSelectCanvas(lc)
 
-    selectShapeUnsubscribeFuncs.push lc.on 'lc-pointerdown', onDown
-    selectShapeUnsubscribeFuncs.push lc.on 'lc-pointerdrag', onDrag
-    selectShapeUnsubscribeFuncs.push lc.on 'lc-pointerup', onUp
+    selectShapeUnsubscribeFuncs.push lc.on 'lc-pointerdown', onDown, lc.currentLayer
+    selectShapeUnsubscribeFuncs.push lc.on 'lc-pointerdrag', onDrag, lc.currentLayer
+    selectShapeUnsubscribeFuncs.push lc.on 'lc-pointerup', onUp, lc.currentLayer
 
     @_drawSelectCanvas(lc)
 

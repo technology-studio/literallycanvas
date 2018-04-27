@@ -17,14 +17,17 @@ module.exports = (snapshot, opts={}) ->
 
   shapes = (JSONToShape(s) for s in snapshot.shapes)
   backgroundShapes = []
+  secondShapes = []
   if snapshot.backgroundShapes
     backgroundShapes = (JSONToShape(s) for s in snapshot.backgroundShapes)
+  if snapshot.secondShapes
+    secondShapes = (JSONToShape(s) for s in snapshot.secondShapes)
 
   opts.margin ?= {top: 0, right: 0, bottom: 0, left: 0}
   imageSize = snapshot.imageSize or {width: INFINITE, height: INFINITE}
 
   colors = snapshot.colors or {background: 'transparent'}
-  allShapes = shapes.concat(backgroundShapes)
+  allShapes = shapes.concat(backgroundShapes).concat(secondShapes)
 
   watermarkCanvas = document.createElement('canvas')
   watermarkCtx = watermarkCanvas.getContext('2d')
@@ -55,4 +58,5 @@ module.exports = (snapshot, opts={}) ->
   util.combineCanvases(
     watermarkCanvas,
     util.renderShapes(backgroundShapes, opts.rect, opts.scale),
-    util.renderShapes(shapes, opts.rect, opts.scale))
+    util.renderShapes(shapes, opts.rect, opts.scale),
+    util.renderShapes(secondShapes, opts.rect, opts.scale))

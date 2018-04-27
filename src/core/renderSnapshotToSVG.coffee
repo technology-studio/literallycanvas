@@ -4,6 +4,7 @@ util = require './util'
 INFINITE = 'infinite'
 module.exports = (snapshot, opts={}) ->
   shapes = (JSONToShape(s) for s in snapshot.shapes)
+  secondShapes = (JSONToShape(s) for s in snapshot.secondShapes)
   backgroundShapes = []
   if snapshot.backgroundShapes
     backgroundShapes = (JSONToShape(s) for s in snapshot.backgroundShapes)
@@ -12,7 +13,7 @@ module.exports = (snapshot, opts={}) ->
   imageSize = snapshot.imageSize or {width: INFINITE, height: INFINITE}
 
   colors = snapshot.colors or {background: 'transparent'}
-  allShapes = shapes.concat(backgroundShapes)
+  allShapes = shapes.concat(backgroundShapes).concat(secondShapes)
 
   dummyCanvas = document.createElement('canvas')
   ctx = dummyCanvas.getContext('2d')
@@ -30,4 +31,4 @@ module.exports = (snapshot, opts={}) ->
     )
 
   return util.renderShapesToSVG(
-    backgroundShapes.concat(shapes), opts.rect, colors.background)
+    backgroundShapes.concat(shapes).concat(secondShapes), opts.rect, colors.background)

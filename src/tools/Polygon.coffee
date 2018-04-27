@@ -28,19 +28,19 @@ module.exports = class Polygon extends ToolWithStroke
 
       @maybePoint = {x: @maybePoint.x, y: @maybePoint.y}
       lc.setShapesInProgress(@_getShapes(lc))
-      lc.repaintLayer('main')
+      lc.repaintLayer(lc.currentLayer)
 
     onMove = ({x, y}) =>
       if @maybePoint
         @maybePoint.x = x
         @maybePoint.y = y
         lc.setShapesInProgress(@_getShapes(lc))
-        lc.repaintLayer('main')
+        lc.repaintLayer(lc.currentLayer)
 
     onDown = ({x, y}) =>
       @maybePoint = {x, y}
       lc.setShapesInProgress(@_getShapes(lc))
-      lc.repaintLayer('main')
+      lc.repaintLayer(lc.currentLayer)
 
     polygonFinishOpen = () =>
       @maybePoint = {x: Infinity, y: Infinity}
@@ -88,7 +88,7 @@ module.exports = class Polygon extends ToolWithStroke
     @maybePoint = null
     @points = null
     lc.setShapesInProgress([])
-    lc.repaintLayer('main')
+    lc.repaintLayer(lc.currentLayer)
 
   _close: (lc) ->
     lc.trigger 'lc-polygon-stopped'

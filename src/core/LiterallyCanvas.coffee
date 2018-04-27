@@ -457,7 +457,7 @@ module.exports = class LiterallyCanvas
   canRedo: -> !!@redoStack.length
 
   getPixel: (x, y) ->
-    currentContext = if repaintLayerKey is 'main' then @ctx else @secondCtx
+    currentContext = if @repaintLayerKey is 'main' then @ctx else @secondCtx
     p = @drawingCoordsToClientCoords x, y
     pixel = currentContext.getImageData(p.x, p.y, 1, 1).data
     if pixel[3]
@@ -474,7 +474,7 @@ module.exports = class LiterallyCanvas
   getDefaultImageRect: (
       explicitSize={width: 0, height: 0},
       margin={top: 0, right: 0, bottom: 0, left: 0}) ->
-    currentContext = if repaintLayerKey is 'main' then @ctx else @secondCtx
+    currentContext = if @repaintLayerKey is 'main' then @ctx else @secondCtx
     return util.getDefaultImageRect(
       (s.getBoundingRect(currentContext) for s in @shapes.concat(@backgroundShapes).concat(@secondShapes)),
       explicitSize,

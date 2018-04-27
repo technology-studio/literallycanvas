@@ -426,6 +426,12 @@ module.exports = class LiterallyCanvas
       @trigger('clear', null)
     @trigger('drawingChange', {})
 
+  setCurrentLayerShapes: (value) ->
+    if @currentLayer is 'main'
+      @shapes = value
+    else
+      @secondShapes = value
+
   clearCurrentLayer: () ->
     if @currentLayer is 'main'
       @shapes = []

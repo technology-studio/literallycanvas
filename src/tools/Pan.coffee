@@ -14,11 +14,12 @@ module.exports = class Pan extends Tool
       for func in unsubscribeFuncs
         func()
 
-    unsubscribeFuncs.push lc.on 'lc-pointerdown', ({rawX, rawY}) =>
+    unsubscribeFuncs.push lc.on 'lc-pointerdown', (({rawX, rawY}) ->
       @oldPosition = lc.position
-      @pointerStart = {x: rawX, y: rawY}
+      @pointerStart = {x: rawX, y: rawY}),
+      lc.currentLayer
 
-    unsubscribeFuncs.push lc.on 'lc-pointerdrag', ({rawX, rawY}) =>
+    unsubscribeFuncs.push lc.on 'lc-pointerdrag', (({rawX, rawY}) ->
       # okay, so this is really bad:
       # lc.position is "buggy screen coordinates": correct on non-retina,
       # probably wrong on retina. compensate here; in v0.5 we should put the
@@ -27,7 +28,8 @@ module.exports = class Pan extends Tool
         x: (rawX - @pointerStart.x) * lc.backingScale,
         y: (rawY - @pointerStart.y) * lc.backingScale
       }
-      lc.setPan(@oldPosition.x + dp.x, @oldPosition.y + dp.y)
+      lc.setPan(@oldPosition.x + dp.x, @oldPosition.y + dp.y)),
+      lc.currentLayer
 
   willBecomeInactive: (lc) ->
     @unsubscribe()

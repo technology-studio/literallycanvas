@@ -162,6 +162,8 @@ defineShape 'Rectangle',
   move: ( moveInfo={} ) ->
     @x = @x - moveInfo.xDiff
     @y = @y - moveInfo.yDiff
+  setFillColor: ( color={} ) ->
+    @fillColor = color
   setUpperLeft: (upperLeft={}) ->
     @x = upperLeft.x
     @y = upperLeft.y
@@ -189,6 +191,8 @@ defineShape 'Ellipse',
   move: ( moveInfo={} ) ->
     @x = @x - moveInfo.xDiff
     @y = @y - moveInfo.yDiff
+  setFillColor: ( color={} ) ->
+    @fillColor = color
   setUpperLeft: (upperLeft={}) ->
     @x = upperLeft.x
     @y = upperLeft.y
@@ -420,6 +424,9 @@ defineShape 'Polygon',
   move: ( moveInfo={} ) ->
     for pt in @points
       pt.move(moveInfo)
+
+  setFillColor: ( color={} ) ->
+    @fillColor = color
 
   setUpperLeft: (upperLeft={}) ->
     br = @getBoundingRect()

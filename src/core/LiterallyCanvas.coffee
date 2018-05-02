@@ -426,8 +426,8 @@ module.exports = class LiterallyCanvas
       @trigger('clear', null)
     @trigger('drawingChange', {})
 
-  setCurrentLayerShapes: (value) ->
-    if @currentLayer is 'main'
+  setCurrentLayerShapes: (value, layer = @currentLayer) ->
+    if layer is 'main'
       @shapes = value
     else
       @secondShapes = value
@@ -544,7 +544,7 @@ module.exports = class LiterallyCanvas
       @secondShapes = []
       for shapeRepr in snapshot.secondShapes
         shape = JSONToShape(shapeRepr)
-        @execute(new actions.AddShapeAction(this, shape)) if shape
+        @execute(new actions.AddShapeAction(this, shape, null, 'second')) if shape # TODO: use layer name from constant
 
     if snapshot.backgroundShapes
       @backgroundShapes = (JSONToShape(s) for s in snapshot.backgroundShapes)

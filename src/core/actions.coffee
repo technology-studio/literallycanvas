@@ -5,9 +5,7 @@ class ClearAction
   constructor: (@lc, @oldShapes, @newShapes) ->
 
   do: ->
-    console.log @lc.shapes
     @lc.clearCurrentLayer()
-    console.log @lc.shapes
     @lc.repaintLayer(@lc.currentLayer)
 
   undo: ->

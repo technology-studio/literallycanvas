@@ -540,7 +540,6 @@ module.exports = class LiterallyCanvas
         @execute(new actions.AddShapeAction(this, shape)) if shape
 
     if snapshot.secondShapes
-      console.log snapshot.secondShapes
       @secondShapes = []
       for shapeRepr in snapshot.secondShapes
         shape = JSONToShape(shapeRepr)

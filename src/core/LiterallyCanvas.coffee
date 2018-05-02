@@ -424,7 +424,7 @@ module.exports = class LiterallyCanvas
     @repaintLayer(@currentLayer)
     if triggerClearEvent
       @trigger('clear', null)
-    @trigger('drawingChange', {})
+    @trigger('drawingChange', {}, @currentLayer)
 
   setCurrentLayerShapes: (value, layer = @currentLayer) ->
     if layer is 'main'

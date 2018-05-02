@@ -28,7 +28,6 @@ module.exports = class Polygon extends ToolWithStroke
 
       @maybePoint = {x: @maybePoint.x, y: @maybePoint.y}
       lc.setShapesInProgress(@_getShapes(lc))
-      console.log lc.currentLayer
       lc.repaintLayer(lc.currentLayer)
 
     onMove = ({x, y}) =>
@@ -41,7 +40,6 @@ module.exports = class Polygon extends ToolWithStroke
     onDown = ({x, y}) =>
       @maybePoint = {x, y}
       lc.setShapesInProgress(@_getShapes(lc))
-      console.log lc.currentLayer
       lc.repaintLayer(lc.currentLayer)
 
     polygonFinishOpen = () =>
@@ -55,7 +53,7 @@ module.exports = class Polygon extends ToolWithStroke
     polygonCancel = () =>
       @_cancel(lc)
 
-    polygonUnsubscribeFuncs.push lc.on('drawingChange', (-> @_cancel lc), lc.currentLayer)
+    polygonUnsubscribeFuncs.push lc.on('drawingChange', (=> @_cancel lc), lc.currentLayer)
     polygonUnsubscribeFuncs.push lc.on 'lc-pointerdown', onDown, lc.currentLayer
     polygonUnsubscribeFuncs.push lc.on 'lc-pointerdrag', onMove, lc.currentLayer
     polygonUnsubscribeFuncs.push lc.on 'lc-pointermove', onMove, lc.currentLayer

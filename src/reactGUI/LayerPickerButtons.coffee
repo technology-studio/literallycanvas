@@ -46,7 +46,10 @@ LayerTwoButton = React.createFactory createLayerPickerButtonsComponent('second')
 LayerPickerButtons = createReactClass
   displayName: 'LayerPickerButtons'
   render: ->
-    {div} = DOM
-    (div {className: 'lc-layer-picker-buttons'}, LayerOneButton(@props), LayerTwoButton(@props))
+    {div, label} = DOM
+    (div {className: 'lc-layer-picker'},
+      (label {style: {float: 'left', textAlign: 'center', width: '60px', fontSize: '10px',}}, 'layers') # TODO: add localization
+      (div {className: 'lc-layer-picker-buttons'}, LayerOneButton(@props), LayerTwoButton(@props))
+    )
 
 module.exports = LayerPickerButtons

@@ -75,7 +75,7 @@ module.exports = class SelectShape extends Tool
 
         lc.trigger('shapeMoved', { shape: @selectedShape })
         lc.trigger('drawingChange', {})
-        lc.repaintLayer('main')
+        lc.repaintLayer(lc.currentLayer)
         @_drawSelectCanvas(lc)
 
     selectShapeUnsubscribeFuncs.push lc.on 'lc-pointerdown', onDown, lc.currentLayer

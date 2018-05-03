@@ -33,32 +33,32 @@ module.exports = class Text extends Tool
     switchAway = =>
       @_ensureNotEditing(lc)
       @_clearCurrentShape(lc)
-      lc.repaintLayer('main')
+      lc.repaintLayer(lc.currentLayer)
 
     updateInputEl = => @_updateInputEl(lc)
 
     unsubscribeFuncs.push lc.on 'drawingChange', switchAway, lc.currentLayer
     unsubscribeFuncs.push lc.on 'zoom', updateInputEl, lc.currentLayer
     unsubscribeFuncs.push lc.on 'imageSizeChange', updateInputEl, lc.currentLayer
-    unsubscribeFuncs.push lc.on 'snapshotLoad', (->
+    unsubscribeFuncs.push lc.on 'snapshotLoad', (=>
       @_clearCurrentShape(lc)
-      lc.repaintLayer('main')),
+      lc.repaintLayer(lc.currentLayer)),
       lc.currentLayer
 
-    unsubscribeFuncs.push lc.on 'primaryColorChange', ((newColor) ->
+    unsubscribeFuncs.push lc.on 'primaryColorChange', ((newColor) =>
       return unless @currentShape
       @currentShape.color = newColor
       @_updateInputEl(lc)
-      lc.repaintLayer('main')),
+      lc.repaintLayer(lc.currentLayer)),
       lc.currentLayer
 
-    unsubscribeFuncs.push lc.on 'setFont', ((font) ->
+    unsubscribeFuncs.push lc.on 'setFont', ((font) =>
       return unless @currentShape
       @font = font
       @currentShape.setFont(font)
       @_setShapesInProgress(lc)
       @_updateInputEl(lc)
-      lc.repaintLayer('main')),
+      lc.repaintLayer(lc.currentLayer)),
       lc.currentLayer
 
   willBecomeInactive: (lc) ->
@@ -83,7 +83,7 @@ module.exports = class Text extends Tool
   commit: (lc) ->
     lc.saveShape(@currentShape) if @currentShape.text
     @_clearCurrentShape(lc)
-    lc.repaintLayer('main')
+    lc.repaintLayer(lc.currentLayer)
 
   _getSelectionShape: (ctx, backgroundColor=null) ->
     createShape('SelectionBox', {shape: @currentShape, ctx, backgroundColor})
@@ -137,7 +137,7 @@ module.exports = class Text extends Tool
     }
 
     @_setShapesInProgress(lc)
-    lc.repaintLayer('main')
+    lc.repaintLayer(lc.currentLayer)
 
   continue:(x, y, lc) ->
     if @dragAction == 'none'
@@ -176,7 +176,7 @@ module.exports = class Text extends Tool
         @currentShape.setPosition(@currentShape.x, y - @dragOffset.y)
 
     @_setShapesInProgress(lc)
-    lc.repaintLayer('main')
+    lc.repaintLayer(lc.currentLayer)
 
     @_updateInputEl(lc)
 
@@ -191,7 +191,7 @@ module.exports = class Text extends Tool
         @_enterEditingState(lc)
 
     @_setShapesInProgress(lc)
-    lc.repaintLayer('main')
+    lc.repaintLayer(lc.currentLayer)
     @_updateInputEl(lc)
 
   _enterEditingState: (lc) ->
@@ -221,7 +221,7 @@ module.exports = class Text extends Tool
       @currentShape.setText(e.target.value)
       @currentShape.enforceMaxBoundingRect(lc)
       @_setShapesInProgress(lc)
-      lc.repaintLayer('main')
+      lc.repaintLayer(lc.currentLayer)
       @_updateInputEl(lc)
       e.stopPropagation()
 
@@ -242,7 +242,7 @@ module.exports = class Text extends Tool
     @inputEl = null
 
     @_setShapesInProgress(lc)
-    lc.repaintLayer('main')
+    lc.repaintLayer(lc.currentLayer)
 
   _updateInputEl: (lc, withMargin=false) ->
     return unless @inputEl

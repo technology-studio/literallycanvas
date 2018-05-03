@@ -5,9 +5,7 @@ class ClearAction
   constructor: (@lc, @oldShapes, @newShapes) ->
 
   do: ->
-    console.log @lc.shapes
     @lc.clearCurrentLayer()
-    console.log @lc.shapes
     @lc.repaintLayer(@lc.currentLayer)
 
   undo: ->
@@ -24,14 +22,14 @@ class MoveAction
       x: @newPosition.x,
       y: @newPosition.y
     }
-    @lc.repaintLayer(@lc.currentLayer)
+    @lc.repaintAllLayers()
 
   undo: ->
     @selectedShape.setUpperLeft {
       x: @previousPosition.x,
       y: @previousPosition.y
     }
-    @lc.repaintLayer(@lc.currentLayer)
+    @lc.repaintAllLayers()
 
 class ChangeColorAction
 
@@ -51,7 +49,8 @@ class AddShapeAction
     @lc,
     @shape,
     @previousShapeId=null,
-    @shapes = if @lc.currentLayer is 'main' then @lc.shapes else @lc.secondShapes
+    @currentLayer = @lc.currentLayer,
+    @shapes = if @currentLayer is 'main' then @lc.shapes else @lc.secondShapes
   ) ->
 
   do: ->
@@ -60,7 +59,7 @@ class AddShapeAction
         @shapes[@shapes.length-1].id == @previousShapeId or
         @previousShapeId == null)
       @shapes.push(@shape)
-      @lc.setCurrentLayerShapes(@shapes)
+      @lc.setCurrentLayerShapes(@shapes, @currentLayer)
     # uncommon case: insert it somewhere
     else
       newShapes = []
@@ -74,7 +73,8 @@ class AddShapeAction
         # given ID doesn't exist, just shove it on top
         newShapes.push(@shape)
       @shapes = newShapes
-    @lc.repaintLayer(@lc.currentLayer)
+      @lc.setCurrentLayerShapes(@shapes, @currentLayer)
+    @lc.repaintAllLayers()
 
   undo: ->
     # common case: it's the most recent shape
@@ -85,8 +85,9 @@ class AddShapeAction
       newShapes = []
       for shape in @shapes
         newShapes.push(shape) if shape.id != @shape.id
-      @lc.setCurrentLayerShapes(newShapes)
-    @lc.repaintLayer(@lc.currentLayer)
+      @shapes = newShapes
+      @lc.setCurrentLayerShapes(@shapes, @currentLayer)
+    @lc.repaintAllLayers()
 
 
 module.exports = {ClearAction, MoveAction, AddShapeAction, ChangeColorAction}

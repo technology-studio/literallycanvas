@@ -58,5 +58,5 @@ module.exports = (snapshot, opts={}) ->
   util.combineCanvases(
     watermarkCanvas,
     util.renderShapes(backgroundShapes, opts.rect, opts.scale),
-    util.renderShapes(shapes, opts.rect, opts.scale),
-    util.renderShapes(secondShapes, opts.rect, opts.scale))
+    util.renderShapes(secondShapes, opts.rect, opts.scale),
+    util.renderShapes(shapes, opts.rect, opts.scale))

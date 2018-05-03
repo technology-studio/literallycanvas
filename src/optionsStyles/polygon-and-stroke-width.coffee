@@ -26,8 +26,8 @@ defineOptionsStyle 'polygon-and-stroke-width', createReactClass
     hidePolygonTools = () =>
       @setState({ inProgress: false });
 
-    unsubscribeFuncs.push @props.lc.on 'lc-polygon-started', showPolygonTools
-    unsubscribeFuncs.push @props.lc.on 'lc-polygon-stopped', hidePolygonTools
+    unsubscribeFuncs.push @props.lc.on 'lc-polygon-started', showPolygonTools, @props.lc.currentLayer
+    unsubscribeFuncs.push @props.lc.on 'lc-polygon-stopped', hidePolygonTools, @props.lc.currentLayer
 
   componentWillUnmount: ->
     @unsubscribe()
@@ -37,13 +37,13 @@ defineOptionsStyle 'polygon-and-stroke-width', createReactClass
     {div, img} = DOM
 
     polygonFinishOpen = () =>
-      lc.trigger 'lc-polygon-finishopen'
+      lc.trigger 'lc-polygon-finishopen', undefined, @props.lc.currentLayer
 
     polygonFinishClosed = () =>
-      lc.trigger 'lc-polygon-finishclosed'
+      lc.trigger 'lc-polygon-finishclosed', undefined, @props.lc.currentLayer
 
     polygonCancel = () =>
-      lc.trigger 'lc-polygon-cancel'
+      lc.trigger 'lc-polygon-cancel', undefined, @props.lc.currentLayer
 
     polygonToolStyle = {}
     polygonToolStyle = {display: 'none'} unless @state.inProgress

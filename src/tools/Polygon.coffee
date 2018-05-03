@@ -19,7 +19,7 @@ module.exports = class Polygon extends ToolWithStroke
 
     onUp = =>
       return @_close(lc) if @_getWillFinish()
-      lc.trigger 'lc-polygon-started'
+      lc.trigger 'lc-polygon-started', undefined, lc.currentLayer
 
       if @points
         @points.push(@maybePoint)
@@ -84,14 +84,14 @@ module.exports = class Polygon extends ToolWithStroke
       @_getArePointsClose(@points[@points.length - 1], @maybePoint))
 
   _cancel: (lc) ->
-    lc.trigger 'lc-polygon-stopped'
+    lc.trigger 'lc-polygon-stopped', undefined, lc.currentLayer
     @maybePoint = null
     @points = null
     lc.setShapesInProgress([])
     lc.repaintLayer(lc.currentLayer)
 
   _close: (lc) ->
-    lc.trigger 'lc-polygon-stopped'
+    lc.trigger 'lc-polygon-stopped', undefined, lc.currentLayer
     lc.setShapesInProgress([])
     lc.saveShape(@_getShape(lc, false)) if @points.length > 2
     @maybePoint = null

@@ -5,6 +5,7 @@ createReactClass = require '../reactGUI/createReactClass-shim'
 ClearButton = React.createFactory require './ClearButton'
 UndoRedoButtons = React.createFactory require './UndoRedoButtons'
 ZoomButtons = React.createFactory require './ZoomButtons'
+LayerPickerButtons = React.createFactory require './LayerPickerButtons'
 
 {_} = require '../core/localization'
 ColorWell = React.createFactory require './ColorWell'
@@ -48,6 +49,7 @@ Picker = createReactClass
           left: 0,
           right: 0,
         },
+        LayerPickerButtons({lc})
         ColorPickers({lc: @props.lc})
         UndoRedoButtons({lc, imageURLPrefix})
         ZoomButtons({lc, imageURLPrefix})

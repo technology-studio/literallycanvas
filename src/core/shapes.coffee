@@ -150,6 +150,7 @@ defineShape 'Rectangle',
     @strokeWidth = args.strokeWidth or 1
     @strokeColor = args.strokeColor or 'black'
     @fillColor = args.fillColor or 'transparent'
+    @layer = args.layer
 
   getBoundingRect: -> {
     x: @x - @strokeWidth / 2,
@@ -157,7 +158,7 @@ defineShape 'Rectangle',
     width: @width + @strokeWidth,
     height: @height + @strokeWidth,
   }
-  toJSON: -> {@x, @y, @width, @height, @strokeWidth, @strokeColor, @fillColor}
+  toJSON: -> {@x, @y, @width, @height, @strokeWidth, @strokeColor, @fillColor, @layer}
   fromJSON: (data) -> createShape('Rectangle', data)
   move: ( moveInfo={} ) ->
     @x = @x - moveInfo.xDiff
@@ -179,6 +180,7 @@ defineShape 'Ellipse',
     @strokeWidth = args.strokeWidth or 1
     @strokeColor = args.strokeColor or 'black'
     @fillColor = args.fillColor or 'transparent'
+    @layer = args.layer
 
   getBoundingRect: -> {
     x: @x - @strokeWidth / 2,
@@ -186,7 +188,7 @@ defineShape 'Ellipse',
     width: @width + @strokeWidth,
     height: @height + @strokeWidth,
   }
-  toJSON: -> {@x, @y, @width, @height, @strokeWidth, @strokeColor, @fillColor}
+  toJSON: -> {@x, @y, @width, @height, @strokeWidth, @strokeColor, @fillColor, @layer}
   fromJSON: (data) -> createShape('Ellipse', data)
   move: ( moveInfo={} ) ->
     @x = @x - moveInfo.xDiff
@@ -397,6 +399,7 @@ defineShape 'Polygon',
 
     args.isClosed ?= true
     @isClosed = args.isClosed
+    @layer = args.layer
 
     # ignore point values
     for point in @points
@@ -411,7 +414,7 @@ defineShape 'Polygon',
 
   toJSON: ->
     {
-      @strokeWidth, @fillColor, @strokeColor, @dash, @isClosed
+      @strokeWidth, @fillColor, @strokeColor, @dash, @isClosed, @layer
       pointCoordinatePairs: @points.map (p) -> [p.x, p.y]
     }
   fromJSON: (data) ->

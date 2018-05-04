@@ -114,7 +114,8 @@ module.exports = class Polygon extends ToolWithStroke
         strokeColor: lc.getColor('primary'),
         fillColor: lc.getColor('secondary'),
         @strokeWidth,
-        points: points.map (xy) -> createShape('Point', xy)
+        points: points.map (xy) -> createShape('Point', xy),
+        layer: lc.currentLayer
       })
     else
       null

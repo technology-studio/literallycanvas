@@ -12,7 +12,8 @@ module.exports = class Ellipse extends ToolWithStroke
     @currentShape = createShape('Ellipse', {
       x, y, @strokeWidth,
       strokeColor: lc.getColor('primary'),
-      fillColor: lc.getColor('secondary')})
+      fillColor: lc.getColor('secondary')
+      layer: lc.currentLayer})
 
   continue: (x, y, lc) ->
     @currentShape.width = x - @currentShape.x

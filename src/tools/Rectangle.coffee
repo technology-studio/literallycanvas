@@ -11,7 +11,8 @@ module.exports = class Rectangle extends ToolWithStroke
     @currentShape = createShape('Rectangle', {
       x, y, @strokeWidth,
       strokeColor: lc.getColor('primary'),
-      fillColor: lc.getColor('secondary')})
+      fillColor: lc.getColor('secondary'),
+      layer: lc.currentLayer})
 
   continue: (x, y, lc) ->
     @currentShape.width = x - @currentShape.x

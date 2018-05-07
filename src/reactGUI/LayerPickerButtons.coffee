@@ -8,7 +8,6 @@ createLayerPickerButtonsComponent = (layerName) -> createReactClass
   displayName: 'LayerPickerButtons'
 
   getState: ->
-    console.log 'getState'
     {
       currentLayer: @props.lc.currentLayer
     }
@@ -16,8 +15,6 @@ createLayerPickerButtonsComponent = (layerName) -> createReactClass
   mixins: [createSetStateOnEventMixin('layerChange')]
 
   render: ->
-    console.log 'LayerPickerButtons render'
-    console.log @props.lc.currentLayer
     {div, p} = DOM
     {lc, imageURLPrefix} = @props
     title = if @state.currentLayer == 'main' then '1' else '2' # TODO: use layer naming from const

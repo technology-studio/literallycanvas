@@ -53,15 +53,26 @@ module.exports = class Polygon extends ToolWithStroke
     polygonCancel = () =>
       @_cancel(lc)
 
-    polygonUnsubscribeFuncs.push lc.on('drawingChange', (=> @_cancel lc), lc.currentLayer)
-    polygonUnsubscribeFuncs.push lc.on 'lc-pointerdown', onDown, lc.currentLayer
-    polygonUnsubscribeFuncs.push lc.on 'lc-pointerdrag', onMove, lc.currentLayer
-    polygonUnsubscribeFuncs.push lc.on 'lc-pointermove', onMove, lc.currentLayer
-    polygonUnsubscribeFuncs.push lc.on 'lc-pointerup', onUp, lc.currentLayer
+    # TODO: use loop to create subscriptions for every layer
+    polygonUnsubscribeFuncs.push lc.on('drawingChange', (=> @_cancel lc), 'main')
+    polygonUnsubscribeFuncs.push lc.on 'lc-pointerdown', onDown, 'main'
+    polygonUnsubscribeFuncs.push lc.on 'lc-pointerdrag', onMove, 'main'
+    polygonUnsubscribeFuncs.push lc.on 'lc-pointermove', onMove, 'main'
+    polygonUnsubscribeFuncs.push lc.on 'lc-pointerup', onUp, 'main'
 
-    polygonUnsubscribeFuncs.push lc.on 'lc-polygon-finishopen', polygonFinishOpen, lc.currentLayer
-    polygonUnsubscribeFuncs.push lc.on 'lc-polygon-finishclosed', polygonFinishClosed, lc.currentLayer
-    polygonUnsubscribeFuncs.push lc.on 'lc-polygon-cancel', polygonCancel, lc.currentLayer
+    polygonUnsubscribeFuncs.push lc.on 'lc-polygon-finishopen', polygonFinishOpen, 'main'
+    polygonUnsubscribeFuncs.push lc.on 'lc-polygon-finishclosed', polygonFinishClosed, 'main'
+    polygonUnsubscribeFuncs.push lc.on 'lc-polygon-cancel', polygonCancel, 'main'
+
+    polygonUnsubscribeFuncs.push lc.on('drawingChange', (=> @_cancel lc), 'second')
+    polygonUnsubscribeFuncs.push lc.on 'lc-pointerdown', onDown, 'second'
+    polygonUnsubscribeFuncs.push lc.on 'lc-pointerdrag', onMove, 'second'
+    polygonUnsubscribeFuncs.push lc.on 'lc-pointermove', onMove, 'second'
+    polygonUnsubscribeFuncs.push lc.on 'lc-pointerup', onUp, 'second'
+
+    polygonUnsubscribeFuncs.push lc.on 'lc-polygon-finishopen', polygonFinishOpen, 'second'
+    polygonUnsubscribeFuncs.push lc.on 'lc-polygon-finishclosed', polygonFinishClosed, 'second'
+    polygonUnsubscribeFuncs.push lc.on 'lc-polygon-cancel', polygonCancel, 'second'
 
   willBecomeInactive: (lc) ->
     super(lc)

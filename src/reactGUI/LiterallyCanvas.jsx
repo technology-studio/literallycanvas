@@ -4,6 +4,7 @@ const { findDOMNode } = require('../reactGUI/ReactDOM-shim');
 const { classSet } = require('../core/util');
 const Picker = require('./Picker');
 const Options = require('./Options');
+const StampPicker = require('./StampPicker');
 const createToolButton = require('./createToolButton');
 const LiterallyCanvasModel = require('../core/LiterallyCanvas');
 const defaultOptions = require('../core/defaultOptions');
@@ -71,7 +72,7 @@ const LiterallyCanvas = createReactClass({
 
   render() {
     const { lc, toolButtonComponents, props } = this;
-    const { imageURLPrefix, toolbarPosition, imageSize } = this.lc.opts;
+    const { imageURLPrefix, toolbarPosition, imageSize, stamps, stampTool } = this.lc.opts;
 
     const pickerProps = { lc, toolButtonComponents, imageURLPrefix };
     const topOrBottomClassName = classSet({
@@ -89,6 +90,7 @@ const LiterallyCanvas = createReactClass({
         <CanvasContainer ref={item => this.canvas = item} />
         <Picker {...pickerProps} />
         <Options lc={lc} imageURLPrefix={imageURLPrefix} />
+        <StampPicker lc={lc} imageURLPrefix={imageURLPrefix} stamps={stamps} stampTool={stampTool} />
       </div>
     );
   }

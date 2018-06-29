@@ -43,6 +43,7 @@ tools =
   Pan: require './tools/Pan'
   Eyedropper: require './tools/Eyedropper'
   SelectShape: require './tools/SelectShape'
+  AdvancedPencil: require './tools/AdvancedPencil'
 
   Tool: baseTools.Tool
   ToolWithStroke: baseTools.ToolWithStroke

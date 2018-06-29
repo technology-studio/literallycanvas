@@ -2,6 +2,7 @@ $basicBorder: 1px solid #555;
 
 $pickerWidth: 61px;
 $pickerButtonSize: 30px;
+$stampPickerWidth: 100px;
 $optionsHeight: 31px;
 $optionsButtonSize: $optionsHeight - 3px;
 
@@ -87,6 +88,11 @@ $selectedColor: lighten(#3cb0fd, 20%);
     background-color: $toolbarBackground;
   }
 
+  .lc-stamp-picker {
+    top: 0; right: 0; bottom: 0; width: $stampPickerWidth;
+    background-color: $toolbarBackground;
+  }
+
   .lc-drawing {
     right: 0; left: 0; bottom: 0; left: 0;
 
@@ -153,6 +159,14 @@ $selectedColor: lighten(#3cb0fd, 20%);
     background-repeat: no-repeat;
     background-position: center center;
   }
+}
+
+.literally .lc-stamp-picker {
+  z-index: 1001;
+  border-left: $basicBorder;
+
+  $buttonMargin: 2px;
+  $buttonActualSize: $pickerButtonSize - $buttonMargin * 2;
 }
 
 .literally {
@@ -290,7 +304,8 @@ $selectedColor: lighten(#3cb0fd, 20%);
 
 .literally .lc-options {
   z-index: 1;
-  right: 0; left: $pickerWidth;
+  right: $stampPickerWidth;
+  left: $pickerWidth;
 
   .lc-font-settings {
     height: $optionsHeight - 1px;
@@ -308,3 +323,9 @@ $selectedColor: lighten(#3cb0fd, 20%);
   }
 }
 
+.stamp-list-item {
+  border: $basicBorder;
+  &.selected {
+    background-color: red;
+  }
+}

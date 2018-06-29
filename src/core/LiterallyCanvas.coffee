@@ -62,6 +62,8 @@ module.exports = class LiterallyCanvas
 
     @backingScale = util.getBackingScale(@ctx)
 
+    @selectedStampIndex = null
+
     @backgroundShapes = opts.backgroundShapes || []
     @_shapesInProgress = []
     @shapes = []
@@ -333,7 +335,7 @@ module.exports = class LiterallyCanvas
             @transformed (=>
               for shape in @_shapesInProgress
                 renderShapeToContext(
-                  currentContext, shape, {currentBufferContext, shouldOnlyDrawLatest: true})
+                  currentContext, shape, {bufferCtx: currentBufferContext, shouldOnlyDrawLatest: true})
             ), currentContext, currentBufferContext
           ), currentContext, currentBufferContext
 

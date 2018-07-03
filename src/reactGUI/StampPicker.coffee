@@ -13,6 +13,7 @@ StampPicker = createReactClass
   renderBody: ->
     {div, label} = DOM
     {lc, stamps, imageURLPrefix, stampTool} = @props
+    isStampToolPicked = lc.tool.name == 'Stamp Tool'
     (div {className: 'lc-stamp-picker-contents'},
       stamps.map((stamp, index) =>
         (
@@ -20,13 +21,12 @@ StampPicker = createReactClass
             name: stamp.name,
             images: stamp.images,
             key: index,
-            isSelected: @state.selectedStampIndex == index
+            isSelected: @state.selectedStampIndex == index and isStampToolPicked
             onPress: () =>
               console.log lc
               lc.setTool(new stampTool(lc))
               @setState({selectedStampIndex: index})
               lc.selectedStampIndex = index
-
           })
         )
         # (stamp \
